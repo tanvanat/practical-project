@@ -1,21 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
 
-//jsx language
-function App() {
-  const title = 'Welcome to Website Security Grading System';
-  const link = "";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Home from './Home';
+import FirstPage from './Firstpage'; 
+import Loading from './Loading';
+import Output from './Output';
 
+export default function App() {
   return (
-    <div className="flex justify-center items-center mt-10 mb-5">
-      <div className='content'>
-        <h1>{title}</h1>
-        <a href="{link}">
-          <img src="/logo192.png" alt="Logo" className="w-30 h-30 mt-20"/>
-        </a>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/Firstpage" element={<FirstPage />} />
+        <Route path="/Loading" element={<Loading />}/>
+        <Route path="/Output" element={<Output/>}/>
+      </Routes>
+    </Router>
   );
 }
-
-export default App;
