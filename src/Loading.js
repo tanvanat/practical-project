@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import loadingSvg from './loading.svg';
 
 export default function Loading() {
     const navigate = useNavigate();
@@ -17,7 +18,7 @@ export default function Loading() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-            <img src="/loading.svg" alt="Loading..." className="animate-spin w-16 h-16" />
+           <img src={loadingSvg} alt="Loading..." className="animate-spin w-16 h-16" />
             <p className="mt-4 text-xl font-semibold">Scanning the website...</p>
         </div>
     );
