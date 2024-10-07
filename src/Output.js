@@ -10,10 +10,7 @@ export default function Output() {
     );
     const listItems = passed.map(i =>
         <li>
-            <img
-                src={getImageUrl(i)}
-                alt={i.name}
-            />
+            
             <p>
                 <b>{i.name}:</b>
                 {'' + i.accomplishment + ''}
@@ -28,15 +25,3 @@ export default function Output() {
         </div>
     );
 }
-
-// const Output = () => {
-//     return (
-//         <ul className="list-none space-y-2">
-//             <Checkbox isCheck={true} name="Update software regularly" />
-//             <Checkbox isCheck={true} name="Use strong passwords" />
-//             <Checkbox isCheck={false} name="Enable HTTPS" />
-//         </ul>
-//     );
-// }
-
-// export default Output;
