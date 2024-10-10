@@ -2,14 +2,17 @@ const express = require("express")
 const router = express.Router()
 
 router.use(logger)
+//Attaches the logger middleware function to the router
 
 router.get("/", (req, res) => {
     console.log(req.query.name)
+    //http://localhost:3000/users?name=John
     res.send("user list")
 })
 
 router.get("/new", (req, res) => {
     res.render("users/new", { firstName: "Test" })
+    //res.render method to render an EJS template. This method dynamically looks within the views directory
 })
 
 router.post("/", (req, res) => {
@@ -23,6 +26,7 @@ router.post("/", (req, res) => {
     }
 })
 
+//response section
 router
     .route("/:id")
     .get((req, res) => {
@@ -37,9 +41,14 @@ router
     })
 
 const users = [{ name: "kyle" }, { name: "sally" }]
+
+//function that match param
+//middleware runs before the response section
 router.param("id", (req, res, next, id) => {
     req.user = users[id]
+    //from users array
     next()
+    //go to response section
 })
 
 
