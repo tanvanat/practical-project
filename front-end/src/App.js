@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Signin from './Signin';
 import Home from './Home';
 import React, { useEffect, useState} from 'react'
+import Sessions from './Sessions';
 
 export default function App() {
   const [backendData, setBackendData] = useState([{}])
@@ -21,7 +22,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Signin />} /> 
-        <Route path="home" element={<Home />} />
+        <Route path="/home/*" element={<Home />} />
       </Routes>
     </Router>
   );

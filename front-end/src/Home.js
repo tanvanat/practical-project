@@ -1,118 +1,113 @@
-'use client'
+import { Disclosure, DisclosureButton, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import Dashboard from './Dashboard';
+import Sessions from './Sessions';
+import Newsession from './Newsession';
 
-import { useState } from 'react'
-import Docnote from './Docnote'
-import {
-  Dialog,
-  DialogPanel,
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  Popover,
-  PopoverButton,
-  PopoverGroup,
-  PopoverPanel,
-} from '@headlessui/react'
-import {
-  ArrowPathIcon,
-  Bars3Icon,
-  ChartPieIcon,
-  CursorArrowRaysIcon,
-  FingerPrintIcon,
-  SquaresPlusIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline'
-import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
 
-const features = [
-  { name: 'Get Prescriptions', description: 'Get online prescription with telehealth in minutes', href: '#', icon: ChartPieIcon },
-  { name: 'Doctor\'s Notes', description: 'Get an online doctor\'s note for work in minutes', href: '#', icon: CursorArrowRaysIcon },
-  { name: 'Lab Requisition', description: 'Get lab tests online in minutes', href: '#', icon: FingerPrintIcon },
-]
-const callsToAction = [
-  { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
-  { name: 'Contact sales', href: '#', icon: PhoneIcon },
-]
+const user = {
+  name: 'Tom Cook',
+  email: 'tom@example.com',
+  imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+};
+
+const navigation = [
+  { name: 'Dashboard', href: '/home' },
+  { name: 'Sessions', href: '/home/sessions' },
+  { name: 'Newsession', href: '/home/newsession' },
+];
+
+const userNavigation = [
+  { name: 'Your Profile', href: '#' },
+  { name: 'Settings', href: '#' },
+  { name: 'Sign out', href: '#' },
+];
+
+function classNames(...classes) {
+  return classes.filter(Boolean).join(' ');
+}
 
 export default function Home() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const location = useLocation(); // Get the current location
 
   return (
-    <header className="Home bg-slate-200">
-      <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
-        <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-0">
-            <span className="sr-only">Your Company</span>
-            <img
-              alt=""
-              src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-              className="h-8 w-auto"
-            />
-          </a>
-        </div>
-        <PopoverGroup className="hidden lg:flex lg:gap-x-20 mr-20 text-normal-text">
-          <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
-            Dashboard
-          </a>
-          <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
-            Sessions
-          </a>
-          <a href="#" className="text-sm font-semibold leading-6 text-gray-900">
-            Letters
-          </a>
+    <div className="min-h-full">
+      <Disclosure as="nav" className="bg-gray-800">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <img
+                  alt="Your Company"
+                  src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
+                  className="h-8 w-8"
+                />
+              </div>
+              <div className="hidden md:block">
+                <div className="ml-10 flex items-baseline space-x-4">
+                  {navigation.map((item) => (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      className={classNames(
+                        location.pathname === item.href ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                        'rounded-md px-3 py-2 text-sm font-medium'
+                      )}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="hidden md:block">
+              <div className="ml-4 flex items-center md:ml-6">
+                <button
+                  type="button"
+                  className="relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                >
+                  <span className="absolute -inset-1.5" />
+                  <span className="sr-only">View notifications</span>
+                  <BellIcon aria-hidden="true" className="h-6 w-6" />
+                </button>
 
-          <Popover className="relative">
-            <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900">
-              Emergency
-              <ChevronDownIcon aria-hidden="true" className="h-5 w-5 flex-none text-gray-400" />
-            </PopoverButton>
-
-            <PopoverPanel
-              transition
-              className="absolute -left-8 top-full z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white shadow-lg ring-1 ring-gray-900/5 transition data-[closed]:translate-y-1 data-[closed]:opacity-0 data-[enter]:duration-200 data-[leave]:duration-150 data-[enter]:ease-out data-[leave]:ease-in"
-            >
-              <div className="p-4">
-                {features.map((item) => (
-                  <div
-                    key={item.name}
-                    className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm leading-6 hover:bg-gray-50"
-                  >
-                    <div className="flex h-11 w-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                      <item.icon aria-hidden="true" className="h-6 w-6 text-gray-600 group-hover:text-indigo-600" />
-                    </div>
-                    <div className="flex-auto">
-                      <a href={item.href} className="block font-semibold text-gray-900">
-                        {item.name}
-                        <span className="absolute inset-0" />
-                      </a>
-                      <p className="mt-1 text-gray-600">{item.description}</p>
-                    </div>
+                {/* Profile dropdown */}
+                <Menu as="div" className="relative ml-3">
+                  <div>
+                    <MenuButton className="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                      <span className="absolute -inset-1.5" />
+                      <span className="sr-only">Open user menu</span>
+                      <img alt="" src={user.imageUrl} className="h-8 w-8 rounded-full" />
+                    </MenuButton>
                   </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
-                {callsToAction.map((item) => (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    className="flex items-center justify-center gap-x-2.5 p-3 text-sm font-semibold leading-6 text-gray-900 hover:bg-gray-100"
+                  <MenuItems
+                    transition
+                    className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
                   >
-                    <item.icon aria-hidden="true" className="h-5 w-5 flex-none text-gray-400" />
-                    {item.name}
-                  </a>
-                ))}
+                    {userNavigation.map((item) => (
+                      <MenuItem key={item.name}>
+                        <a
+                          href={item.href}
+                          className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+                        >
+                          {item.name}
+                        </a>
+                      </MenuItem>
+                    ))}
+                  </MenuItems>
+                </Menu>
               </div>
-            </PopoverPanel>
-          </Popover>
-        </PopoverGroup>
-
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="/Signin" className="text-normal-text">
-            <button type="button" class="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">New session <span aria-hidden="true">&rarr;</span></button>
-          </a>
+            </div>
+          </div>
         </div>
-      </nav>
-      <Docnote />
-    </header>
-  )
+      </Disclosure>
+
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/sessions" element={<Sessions />} />
+        <Route path="/newsession" element={<Newsession />} />
+      </Routes>
+    </div>
+  );
 }
