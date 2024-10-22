@@ -1,12 +1,15 @@
 const express = require("express")
 const router = express.Router()
+const users = [{ name: "kyle" }, { name: "sally" }]
 
 router.use(logger)
 //Attaches the logger middleware function to the router
+ 
 
 router.get("/", (req, res) => {
     console.log(req.query.name)
     //http://localhost:3000/users?name=John
+    res.json(users);
     res.send("user list")
 })
 
@@ -40,7 +43,6 @@ router
         res.send(`delete user with id ${req.params.id}`)
     })
 
-const users = [{ name: "kyle" }, { name: "sally" }]
 
 //function that match param
 //middleware runs before the response section
