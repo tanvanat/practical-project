@@ -1,0 +1,19 @@
+/* Add this to your style.css file */
+
+@keyframes jump {
+  0%, 100% {
+      transform: translateY(0);
+  }
+  50% {
+      transform: translateY(-20px); /* Height of the jump */
+  }
+}
+
+.jumping-first {
+  animation: jump 0.5s ease-in-out infinite; /* First tier jump animation */
+}
+
+.jumping-second {
+  animation: jump 0.5s ease-in-out infinite; /* Second tier jump animation */
+  animation-delay: 0.25s; /* Delay for second tier */
+}

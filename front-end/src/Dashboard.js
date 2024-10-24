@@ -1,3 +1,5 @@
+import Today from "./Today"
+
 export default function Dashboard() {
     return (
       <>
@@ -7,7 +9,7 @@ export default function Dashboard() {
           </div>
         </header>
         <main>
-          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">Content in Dashboard</div>
+          <Today/>
         </main>
       </>
     );
