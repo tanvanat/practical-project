@@ -4,6 +4,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import Dashboard from './Dashboard'; // Import Dashboard component
 import Sessions from './Sessions';
 import Newsession from './Newsession';
+import Person from './Person';
 
 const user = {
   name: 'Tom Cook',
@@ -32,7 +33,6 @@ export default function Home() {
 
   return (
     <div className="relative overflow-hidden min-h-full">
-      <div className="absolute inset-0 bg-kid-smile bg-cover bg-center filter grayscale" style={{ zIndex: -1 }} />
       <Disclosure as="nav" className="bg-custom-blue z-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
@@ -104,9 +104,10 @@ export default function Home() {
       </Disclosure>
 
       <Routes>
-        <Route path="/" element={<Dashboard />} /> {/* Change this path to /home if you want */}
+        <Route path="/" element={<Dashboard />} />
         <Route path="/sessions" element={<Sessions />} />
         <Route path="/newsession" element={<Newsession />} />
+        <Route path="/person" element={<Person />} />
       </Routes>
     </div>
   );

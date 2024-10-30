@@ -32,7 +32,7 @@ export default function Sessions() {
                 </div>
             </header>
             <main>
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-7">
+                <div className="min-h-screen max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-7">
                     <ul>
                         {people.map((person) => (
                             <li key={person.name} className="mb-4">

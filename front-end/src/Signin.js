@@ -28,7 +28,7 @@ export default function Signin() {
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
             alt="Your Company"
-            src="med_logo.png"
+            src="img/med_logo.png"
             className="mx-auto h-12 w-auto"
           />
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-custom-orange ">

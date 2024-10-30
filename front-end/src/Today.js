@@ -1,23 +1,24 @@
 import { CheckIcon } from '@heroicons/react/20/solid';
 import './style.css';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const tiers = [
     {
         name: 'Leslie Alexander',
-        id: 'tier-hobby',
+        id: 'Leslie',
         href: '#',
-        priceMonthly: '$29',
-        description: "I passing urine more often than usual, particularly at night",
+        imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+        description: "I am experiencing frequent urination, especially at night. My energy levels seem low, and I've noticed more thirst than usual. Please help me manage these symptoms.",
         features: ['Thirsty', 'Genital itching or thrush', 'Blurred eyesight', 'Cuts and wounds take longer to heal'],
         featured: false,
     },
     {
         name: 'Michael Foster',
-        id: 'tier-enterprise',
+        id: 'Michael',
         href: '#',
-        priceMonthly: '$99',
-        description: 'My hands, ankles and feet are getting more swelling',
+        imageUrl: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+        description: "My hands, ankles, and feet are swelling more than usual. I often feel short of breath, and it's affecting my daily activities. I would like to explore ways to manage these symptoms.",
         features: [
             'Chest pain',
             'Shortness of breath',
@@ -48,27 +49,12 @@ export default function Today() {
 
     return (
         <>
-            <header className="bg-white shadow">
-                <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
-                </div>
-            </header>
             <main>
                 <div className="relative isolate bg-white px-6 py-24 sm:py-32 lg:px-8">
-                    <div aria-hidden="true" className="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl">
-                        <div
-                            style={{
-                                clipPath:
-                                    'polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)',
-                            }}
-                            className="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
-                        />
-                    </div>
                     <div className="mx-auto max-w-4xl text-center">
                         <h2 className="text-base font-semibold leading-7 text-indigo-600">
                             Waiting patients
                         </h2>
-
                         <p className="mt-2 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl">
                             Choose the patient you want to diagnose and investigate
                         </p>
@@ -84,8 +70,8 @@ export default function Today() {
                                 key={tier.id}
                                 className={classNames(
                                     tier.featured ? 'relative bg-gray-900 shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0',
-                                    tierIdx === 0 && jump ? 'jumping-first' : '', // Apply first jumping class
-                                    tierIdx === 1 && jump ? 'jumping-second' : '', // Apply second jumping class
+                                    tierIdx === 0 && jump ? 'jumping-first' : '',
+                                    tierIdx === 1 && jump ? 'jumping-second' : '',
                                     tier.featured
                                         ? ''
                                         : tierIdx === 0
@@ -98,25 +84,24 @@ export default function Today() {
                                     id={tier.id}
                                     className={classNames(
                                         tier.featured ? 'text-indigo-400' : 'text-indigo-600',
-                                        'text-base font-semibold leading-7',
+                                        'text-base font-semibold leading-7 text-center', // Center name text
                                     )}
                                 >
                                     {tier.name}
                                 </h3>
-                                <p className="mt-4 flex items-baseline gap-x-2">
-                                    <span
-                                        className={classNames(
-                                            tier.featured ? 'text-white' : 'text-gray-900',
-                                            'text-5xl font-semibold tracking-tight',
-                                        )}
-                                    >
-                                        {tier.priceMonthly}
-                                    </span>
-                                    <span className={classNames(tier.featured ? 'text-gray-400' : 'text-gray-500', 'text-base')}>/month</span>
-                                </p>
-                                <p className={classNames(tier.featured ? 'text-gray-300' : 'text-gray-600', 'mt-6 text-base leading-7')}>
+
+                                <div className="mt-4 flex justify-center">
+                                    <img
+                                        alt={`${tier.name}'s avatar`}
+                                        src={tier.imageUrl}
+                                        className="h-12 w-12 flex-none rounded-full bg-gray-50"
+                                    />
+                                </div>
+
+                                <p className={classNames(tier.featured ? 'text-gray-300' : 'text-gray-600', 'mt-6 text-base leading-7 text-center')}>
                                     {tier.description}
                                 </p>
+
                                 <ul
                                     role="list"
                                     className={classNames(
@@ -134,8 +119,8 @@ export default function Today() {
                                         </li>
                                     ))}
                                 </ul>
-                                <a
-                                    href={tier.href}
+                                <Link
+                                    to={`/home/person/${tier.id}`} // Updated to use URL parameter
                                     aria-describedby={tier.id}
                                     className={classNames(
                                         tier.featured
@@ -145,13 +130,12 @@ export default function Today() {
                                     )}
                                 >
                                     Diagnose
-                                </a>
+                                </Link>
                             </div>
                         ))}
                     </div>
                 </div>
             </main>
         </>
-
     );
 }
