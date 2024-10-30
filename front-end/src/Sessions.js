@@ -37,7 +37,7 @@ export default function Sessions() {
                         {people.map((person) => (
                             <li key={person.name} className="mb-4">
                                 <Link to={`/sessions/${person.name}`}>
-                                    <button className="w-full bg-amber-200 hover:bg-amber-400 text-white font-bold py-2 px-4 border-b-4 border-amber-200 hover:border-amber-500 rounded flex justify-between items-center">
+                                    <button className="w-full bg-custom-green hover:bg-[#B0BD9C] text-white font-bold py-2 px-4 border-b-4 border-custom-green hover:border-[#B0BD9C] rounded flex justify-between items-center">
                                         <div className="flex min-w-0 gap-x-4">
                                             <img alt="" src={person.imageUrl} className="h-12 w-12 flex-none rounded-full bg-gray-50" />
                                             <div className="min-w-0 flex-auto">

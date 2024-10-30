@@ -1,10 +1,9 @@
-import { Disclosure, DisclosureButton, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Disclosure, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { BellIcon } from '@heroicons/react/24/outline';
 import { Routes, Route, Link, useLocation } from 'react-router-dom';
-import Dashboard from './Dashboard';
+import Dashboard from './Dashboard'; // Import Dashboard component
 import Sessions from './Sessions';
 import Newsession from './Newsession';
-
 
 const user = {
   name: 'Tom Cook',
@@ -32,15 +31,16 @@ export default function Home() {
   const location = useLocation(); // Get the current location
 
   return (
-    <div className="min-h-full">
-      <Disclosure as="nav" className="bg-gray-800">
+    <div className="relative overflow-hidden min-h-full">
+      <div className="absolute inset-0 bg-kid-smile bg-cover bg-center filter grayscale" style={{ zIndex: -1 }} />
+      <Disclosure as="nav" className="bg-custom-blue z-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <img
                   alt="Your Company"
-                  src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
+                  src="img/med_logo.png"
                   className="h-8 w-8"
                 />
               </div>
@@ -51,7 +51,7 @@ export default function Home() {
                       key={item.name}
                       to={item.href}
                       className={classNames(
-                        location.pathname === item.href ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                        location.pathname === item.href ? 'bg-custom-orange text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                         'rounded-md px-3 py-2 text-sm font-medium'
                       )}
                     >
@@ -104,7 +104,7 @@ export default function Home() {
       </Disclosure>
 
       <Routes>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/" element={<Dashboard />} /> {/* Change this path to /home if you want */}
         <Route path="/sessions" element={<Sessions />} />
         <Route path="/newsession" element={<Newsession />} />
       </Routes>
