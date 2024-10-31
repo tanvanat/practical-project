@@ -2,6 +2,7 @@ import { PhotoIcon } from '@heroicons/react/24/solid';
 import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CameraIcon } from '@heroicons/react/24/outline';
 
 export default function Newsession({ tier }) { // Ensure tier is passed as a prop
     const [formData, setFormData] = useState({
@@ -73,9 +74,24 @@ export default function Newsession({ tier }) { // Ensure tier is passed as a pro
                             </p>
                             <div className=" border-gray-900/10 pb-12">
                                 <h2 className="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
-
                                 <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
 
+                                <div className="mt-4 col-span-full">
+                                    <label htmlFor="photo" className="block text-sm font-medium leading-6 text-gray-900">
+                                        Profile Photo
+                                    </label>
+                                    <div className="mt-2 flex justify-start">
+                                        <div className="flex flex-col items-center rounded-lg border border-dashed border-gray-900/25 p-4 w-32 h-30">
+                                            <CameraIcon aria-hidden="true" className="h-8 w-8 text-gray-300" />
+                                            <div className="mt-2 flex text-sm leading-6 text-gray-600">
+                                                <label htmlFor="file-upload" className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
+                                                    <span>Upload</span>
+                                                    <input id="file-upload" name="file-upload" type="file" className="sr-only" />
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                     <div className="sm:col-span-3">
                                         <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
