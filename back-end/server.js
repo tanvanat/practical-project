@@ -37,7 +37,7 @@ const tierSchema = new mongoose.Schema({
 // Create a model
 const Tier = mongoose.model('Tier', tierSchema);
 
-// Define route to get person data by ID
+//Get person's data: Sessions.js/Today.js
 app.get('/api/person/:id', async (req, res) => {
   try {
     const personId = req.params.id;
@@ -53,7 +53,7 @@ app.get('/api/person/:id', async (req, res) => {
   }
 });
 
-// Define route to create a new person
+//Create a new person: Newsession.js
 app.post('/api/person', async (req, res) => {
   const newPerson = new Tier(req.body);
 
@@ -65,16 +65,6 @@ app.post('/api/person', async (req, res) => {
   }
 });
 
-// POST route to add "many" new persons
-app.post('/api/persons', async (req, res) => {
-  const newPersons = req.body; // This should be an array of person objects
-  try {
-    const savedPersons = await Person.insertMany(newPersons); // Use insertMany to save multiple documents
-    res.status(201).json(savedPersons);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
 
 // Start server
 app.listen(PORT, () => {
