@@ -23,15 +23,11 @@ export default function Signin() {
     <>
       <div
         className="bg-signin-page bg-cover bg-center bg-blend-multiply bg-opacity-60 flex flex-col justify-center px-6 py-13 lg:px-8"
-        style={{  minHeight: '100vh' }}
+        style={{ minHeight: '100vh' }}
       >
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
-            alt="Your Company"
-            src="img/med_logo.png"
-            className="mx-auto h-12 w-auto"
-          />
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-custom-orange ">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center">
+          <div className="bg-med-icon h-16 w-16 bg-contain bg-center bg-no-repeat mb-6"></div>
+          <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-custom-orange">
             Sign in to your account
           </h2>
         </div>

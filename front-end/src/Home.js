@@ -37,13 +37,8 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <img
-                  alt="Your Company"
-                  src="img/med_logo.png"
-                  className="h-8 w-8"
-                />
-              </div>
+            <div className="flex-shrink-0 h-8 w-8 bg-med-icon bg-contain bg-center bg-no-repeat" aria-label="Your Company"></div>
+
               <div className="hidden md:block">
                 <div className="ml-10 flex items-baseline space-x-4">
                   {navigation.map((item) => (

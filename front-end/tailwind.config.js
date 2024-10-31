@@ -20,7 +20,9 @@ module.exports = {
       backgroundImage: {
         'signin-page': "url('/public/img/stethoscope.png')",  
         'kid-smile': "url('/public/img/kid-smile.png')",
+        'med-icon': "url('/public/img/med_logo.png')",
       }
+      
     },
   },
   plugins: [
