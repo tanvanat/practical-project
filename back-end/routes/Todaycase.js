@@ -1,12 +1,12 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 const app = express();
 const PORT = 5000;
 
 app.use(cors());
-app.use(express.json());
 
-// Sample data (simulating a database)
+// Sample data (could be imported from a separate module/file in a real app)
 const tiers = [
     {
         name: 'Leslie Alexander',
@@ -33,7 +33,7 @@ const tiers = [
     },
 ];
 
-// Define route to get person data by ID
+// Define route to get data by person ID
 app.get('/api/person/:id', (req, res) => {
     const personId = req.params.id;
     const person = tiers.find((tier) => tier.id === personId);
@@ -45,7 +45,6 @@ app.get('/api/person/:id', (req, res) => {
     }
 });
 
-// Start server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });

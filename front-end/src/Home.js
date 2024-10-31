@@ -107,7 +107,7 @@ export default function Home() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/sessions" element={<Sessions />} />
         <Route path="/newsession" element={<Newsession />} />
-        <Route path="/person" element={<Person />} />
+        <Route path="/person/:id" element={<Person />} /> {/* Updated route for Person */}
       </Routes>
     </div>
   );
