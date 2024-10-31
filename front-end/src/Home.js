@@ -5,6 +5,7 @@ import Dashboard from './Dashboard'; // Import Dashboard component
 import Sessions from './Sessions';
 import Newsession from './Newsession';
 import Person from './Person';
+import Upload from './Upload';
 
 const user = {
   name: 'Tom Cook',
@@ -102,7 +103,8 @@ export default function Home() {
         <Route path="/" element={<Dashboard />} />
         <Route path="/sessions" element={<Sessions />} />
         <Route path="/newsession" element={<Newsession />} />
-        <Route path="/person/:id" element={<Person />} /> {/* Updated route for Person */}
+        <Route path="/person/:id" element={<Person />} />
+        <Route path="/upload" element={<Upload />} />
       </Routes>
     </div>
   );

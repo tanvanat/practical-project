@@ -1,32 +1,27 @@
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-const people = [
-    {
-        id: 'Leslie',
-        name: 'Leslie Alexander',
-        imageUrl:
-            'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        lastSeen: '3h ago',
-        lastSeenDateTime: '2023-01-23T13:23Z',
-    },
-    {
-        id: 'Michael', 
-        name: 'Michael Foster',
-        imageUrl:
-            'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        lastSeen: '3h ago',
-        lastSeenDateTime: '2023-01-23T13:23Z',
-    },
-    {
-        id: 'Dries',
-        name: 'Dries Vincent',
-        imageUrl:
-            'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-        lastSeen: null,
-    },
-];
-
 export default function Sessions() {
+    const [people, setPeople] = useState([]);
+
+    useEffect(() => {
+        const fetchSessions = async () => {
+            try {
+                const response = await axios.get('/api/sessions');
+                setPeople(response.data);
+            } catch (error) {
+                console.error('Error fetching sessions:', error);
+            }
+        };
+
+        // Fetch data initially and set up polling
+        fetchSessions();
+        const intervalId = setInterval(fetchSessions, 5000); // Fetch every 5 seconds
+
+        return () => clearInterval(intervalId);
+    }, []);
+
     return (
         <>
             <header className="bg-white shadow">
@@ -44,7 +39,7 @@ export default function Sessions() {
                                         <div className="flex items-center min-w-0 gap-x-4">
                                             <img alt="" src={person.imageUrl} className="h-12 w-12 flex-none rounded-full bg-gray-50" />
                                             <div className="min-w-0 flex-auto">
-                                                <p className="text-sm font-semibold leading-6 text-gray-900">{person.name}</p>
+                                                <p className="text-sm font-semibold leading-6 text-gray-900">{person.firstName + ' '+ person.lastName}</p>
                                             </div>
                                         </div>
                                         <div className="shrink-0 sm:flex sm:flex-col sm:items-end">
