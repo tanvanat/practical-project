@@ -11,6 +11,7 @@ const tiers = [
         imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
         description: "I am experiencing frequent urination, especially at night. My energy levels seem low, and I've noticed more thirst than usual. Please help me manage these symptoms.",
         features: ['Thirsty', 'Genital itching or thrush', 'Blurred eyesight', 'Cuts and wounds take longer to heal'],
+        emergencyContact: '(123) 456-7890',
         featured: false,
     },
     {
@@ -27,6 +28,7 @@ const tiers = [
             'Poor blood supply to extremities',
             'Numbness',
         ],
+        emergencyContact: '(987) 654-3210',
         featured: true,
     },
 ];
@@ -119,6 +121,12 @@ export default function Today() {
                                         </li>
                                     ))}
                                 </ul>
+                                
+                                {/* Emergency Contact Section */}
+                                <p className={classNames(tier.featured ? 'text-gray-300' : 'text-gray-600', 'mt-6 text-base leading-7 text-center')}>
+                                    Emergency Contact: {tier.emergencyContact}
+                                </p>
+
                                 <Link
                                     to={`/home/person/${tier.id}`} // Updated to use URL parameter
                                     aria-describedby={tier.id}
