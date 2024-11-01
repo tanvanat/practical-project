@@ -22,6 +22,7 @@ db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
+// Patients_data schema
 const Patients_data = new mongoose.Schema({
   firstName: String,
   lastName: String,
@@ -41,7 +42,6 @@ const Patients_data = new mongoose.Schema({
   presentingConcern: String,
 });
 
-
 // Pre-save hook to set `id` to `firstName`
 Patients_data.pre('save', function(next) {
   if (!this.id) {
@@ -52,8 +52,22 @@ Patients_data.pre('save', function(next) {
 
 const Tier = mongoose.model('Tier', Patients_data);
 
+// Doctors_data schema
+const Doctors_data = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  specialty: String,
+  email: String,
+  phone: String,
+  address: String,
+  // Add any additional fields as necessary
+});
 
-//Get person's data: Sessions.js/Today.js
+// Create a Mongoose model for Doctors
+const Doctor = mongoose.model('Doctor', Doctors_data);
+
+//Patients
+// Get person's data: Sessions.js/Today.js
 app.get('/api/person/:id', async (req, res) => {
   try {
     const personId = req.params.id;
@@ -69,7 +83,7 @@ app.get('/api/person/:id', async (req, res) => {
   }
 });
 
-//Create a new person: Newsession.js
+// Create a new person: Newsession.js
 app.post('/api/person', async (req, res) => {
   const newPerson = new Tier(req.body);
 
@@ -103,6 +117,29 @@ app.get('/api/sessions', async (req, res) => {
     res.json(sessions); // Send all sessions data as JSON
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch sessions' }); // Handle errors
+  }
+});
+
+//Doctors
+// Get all doctors: Doctors.js
+app.get('/api/doctors', async (req, res) => {
+  try {
+    const doctors = await Doctor.find(); // Fetch all documents from the Doctors collection
+    res.json(doctors); // Send all doctors data as JSON
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch doctors' }); // Handle errors
+  }
+});
+
+// Create a new doctor: NewDoctor.js
+app.post('/api/doctors', async (req, res) => {
+  const newDoctor = new Doctor(req.body);
+
+  try {
+    await newDoctor.save();
+    res.status(201).json(newDoctor);
+  } catch (error) {
+    res.status(400).json({ error: 'Failed to create doctor' });
   }
 });
 

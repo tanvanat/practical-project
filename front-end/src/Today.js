@@ -24,8 +24,8 @@ export default function Today() {
                 emergencyContact: patient.emergencyContact, // array for emergency contact
                 featured: true
             }));
-            
-            
+
+
 
             setPatients(limitedData);
         } catch (error) {
@@ -36,7 +36,7 @@ export default function Today() {
 
     useEffect(() => {
         fetchPatients(); // Initial fetch
-        
+
         // Set up polling every 5 seconds (5000 milliseconds)
         const interval = setInterval(fetchPatients, 5000);
 
@@ -65,7 +65,8 @@ export default function Today() {
                     {patients.map((patient, index) => (
                         <div
                             key={patient.id}
-                            className={`rounded-3xl p-8 ring-1 ring-gray-900/10 ${patient.featured ? 'bg-gray-900 shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0'}`}
+                            className={`rounded-3xl p-8 ring-1 ring-gray-900/10 ${patient.featured ? 'bg-gray-900 shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0'} mx-2`} // Add horizontal margin for spacing
+                            style={{ transform: index % 2 === 0 ? 'translateX(-10px)' : 'translateX(10px)' }} // Shift boxes left/right
                         >
                             <h3 className={`text-base font-semibold leading-7 text-center ${patient.featured ? 'text-indigo-400' : 'text-indigo-600'}`}>
                                 {patient.name}
@@ -94,6 +95,8 @@ export default function Today() {
                         </div>
                     ))}
                 </div>
+
+
             </div>
         </main>
     );
