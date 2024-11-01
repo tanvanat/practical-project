@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraIcon } from '@heroicons/react/24/outline';
 
-export default function Newsession({ tier }) { // Ensure tier is passed as a prop
+export default function Newsession({ tier }) {
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -32,29 +32,29 @@ export default function Newsession({ tier }) { // Ensure tier is passed as a pro
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true); // Start loading state
+        setLoading(true);
 
-        // Validate that all fields are filled out
         const isValid = Object.values(formData).every((value) => value.trim() !== '');
 
         if (!isValid) {
             alert("Please fill in all fields before submitting.");
-            setLoading(false); // End loading state if validation fails
+            setLoading(false);
             return;
         }
 
         try {
-            // Send data to the new API endpoint
             const response = await axios.post('/api/newsession/upload', formData);
             console.log('Upload Success:', response.data);
-
-            // Navigate to the Upload.js component after successful upload
             navigate('/home/upload');
         } catch (error) {
             console.error('Error submitting form:', error);
         } finally {
-            setLoading(false); // End loading state
+            setLoading(false);
         }
+    };
+
+    const handleCameraClick = () => {
+        navigate('/camera'); // Navigate to camera page
     };
 
     return (
@@ -67,12 +67,12 @@ export default function Newsession({ tier }) { // Ensure tier is passed as a pro
             <main className="flex justify-center items-center min-h-screen">
                 <form onSubmit={handleSubmit} className="max-w-lg w-full mt-7">
                     <div className="space-y-1">
-                        <div className=" border-gray-900/10">
+                        <div className="border-gray-900/10">
                             <h2 className="text-base font-semibold leading-7 text-gray-900">OPD CARD</h2>
                             <p className="my-8 mt-1 text-sm leading-6 text-gray-600">
                                 Last edit 17/1/46
                             </p>
-                            <div className=" border-gray-900/10 pb-12">
+                            <div className="border-gray-900/10 pb-12">
                                 <h2 className="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
                                 <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
 
@@ -81,18 +81,15 @@ export default function Newsession({ tier }) { // Ensure tier is passed as a pro
                                         Profile Photo
                                     </label>
                                     <div className="mt-2 flex justify-start">
-                                        <div className="flex flex-col items-center rounded-lg border border-dashed border-gray-900/25 p-4 w-32 h-30">
+                                        <div
+                                            className="flex flex-col items-center rounded-lg border border-dashed border-gray-900/25 p-4 w-32 h-30 cursor-pointer"
+                                            onClick={handleCameraClick} // Handle click event
+                                        >
                                             <CameraIcon aria-hidden="true" className="h-8 w-8 text-gray-300" />
-                                            <div className="mt-2 flex text-sm leading-6 text-gray-600">
-                                                <label htmlFor="file-upload" className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
-                                                    <span>Upload</span>
-                                                    <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-                                                </label>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                     <div className="sm:col-span-3">
                                         <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">

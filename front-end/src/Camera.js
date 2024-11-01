@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import axios from 'axios'; // Import axios to make API requests
 
 const Camera = () => {
     const videoRef = useRef(null);
@@ -34,6 +35,23 @@ const Camera = () => {
         }
     };
 
+    const saveImage = async () => {
+        if (capturedImage) {
+            try {
+                const response = await axios.post('/api/upload', { image: capturedImage });
+                console.log('Image saved successfully:', response.data);
+                alert('Image saved successfully!');
+                // Optionally, redirect or update UI after saving
+            } catch (error) {
+                console.error('Error saving image:', error);
+            }
+        }
+    };
+
+    const retakePicture = () => {
+        setCapturedImage(null); // Clear the captured image
+    };
+
     return (
         <div className="flex flex-col items-center">
             <video
@@ -57,6 +75,14 @@ const Camera = () => {
                 <div>
                     <h3>Captured Image:</h3>
                     <img src={capturedImage} alt="Captured" style={{ width: '320px', height: '240px', border: '1px solid black' }} />
+                    <div style={{ marginTop: '10px' }}>
+                        <button onClick={saveImage} style={{ padding: '10px 20px', backgroundColor: '#007BFF', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+                            Use This Image
+                        </button>
+                        <button onClick={retakePicture} style={{ padding: '10px 20px', marginLeft: '10px', backgroundColor: '#FF4136', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
+                            Take a Picture Again
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
