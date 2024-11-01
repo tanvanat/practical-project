@@ -1,29 +1,27 @@
-
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Signin from './Signin';
 import Home from './Home';
-import React, { useEffect, useState} from 'react'
 import Person from './Person';
+import Camera from './Camera';
+import React, { useEffect, useState } from 'react';
 
 export default function App() {
-  const [backendData, setBackendData] = useState([{}])
+  const [backendData, setBackendData] = useState([{}]);
 
   useEffect(() => {
-    fetch("/api").then(
-      response => response.json()
-    ).then(
-      data => {
-        setBackendData(data)
-      }
-    )
-  }, [])
+    fetch("/api")
+      .then(response => response.json())
+      .then(data => setBackendData(data));
+  }, []);
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Signin />} /> 
+        <Route path="/" element={<Signin />} />
         <Route path="/home/*" element={<Home />} />
         <Route path="/home/person/:id" element={<Person />} />
+        {/* Add a route for the WebcamCapture component */}
+        <Route path="/camera" element={<Camera />} />
       </Routes>
     </Router>
   );
