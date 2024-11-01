@@ -32,17 +32,21 @@ export default function Newsession({ tier }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
+    
         const isValid = Object.values(formData).every((value) => value.trim() !== '');
-
+    
         if (!isValid) {
             alert("Please fill in all fields before submitting.");
             setLoading(false);
             return;
         }
-
+    
         try {
-            const response = await axios.post('/api/newsession/upload', formData);
+            // Include the phone number as the emergency contact
+            const response = await axios.post('/api/newsession/upload', {
+                ...formData,
+                emergencyContact: formData.phone, // Add this line to assign phone as emergency contact
+            });
             console.log('Upload Success:', response.data);
             navigate('/home/upload');
         } catch (error) {
@@ -51,8 +55,9 @@ export default function Newsession({ tier }) {
             setLoading(false);
         }
     };
-
     
+
+
     return (
         <>
             <header className="bg-white shadow">
@@ -72,7 +77,7 @@ export default function Newsession({ tier }) {
                                 <h2 className="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
                                 <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
 
-                             
+
 
                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                     <div className="sm:col-span-3">

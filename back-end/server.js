@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/Patients', {
+mongoose.connect('mongodb://localhost:27017/Project', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -22,11 +22,10 @@ db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
-// Sample data (simulating a database)
-const tierSchema = new mongoose.Schema({
+const Patients_data = new mongoose.Schema({
   firstName: String,
   lastName: String,
-  id: String, //firstname
+  id: String, // Automatically set to firstName
   href: String,
   email: String,
   country: String,
@@ -35,16 +34,24 @@ const tierSchema = new mongoose.Schema({
   allergy: String,
   weight: String,
   height: String,
-  imageUrl: String,
   description: String,
   features: [String],
-  emergencyContact: [String],
+  emergencyContact: String, // Change this to String for a single phone number
   featured: Boolean,
   presentingConcern: String,
 });
 
-// Create a model
-const Tier = mongoose.model('Tier', tierSchema);
+
+// Pre-save hook to set `id` to `firstName`
+Patients_data.pre('save', function(next) {
+  if (!this.id) {
+    this.id = this.firstName; // Automatically set `id` to `firstName` if not already defined
+  }
+  next();
+});
+
+const Tier = mongoose.model('Tier', Patients_data);
+
 
 //Get person's data: Sessions.js/Today.js
 app.get('/api/person/:id', async (req, res) => {
@@ -98,37 +105,6 @@ app.get('/api/sessions', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch sessions' }); // Handle errors
   }
 });
-
-// Define a new schema for the uploaded images
-const imageSchema = new mongoose.Schema({
-  imageUrl: String, // URL or data of the uploaded image
-  createdAt: { type: Date, default: Date.now }, // Optional: Store the upload time
-});
-
-// Create a model for the uploaded images
-const ImageUpload = mongoose.model('ImageUpload', imageSchema);
-
-// Create a new API endpoint to handle image uploads
-app.post('/api/camera/upload', async (req, res) => {
-  const { image } = req.body; // Extract the image data from the request body
-
-  if (!image) {
-    return res.status(400).json({ error: 'No image data provided' });
-  }
-
-  try {
-    // Create a new instance of the ImageUpload model
-    const newImage = new ImageUpload({ imageUrl: image });
-    await newImage.save(); // Save the image data to the database
-
-    // Respond with the saved image data (including its ID)
-    res.status(201).json({ success: true, imageId: newImage._id });
-  } catch (error) {
-    console.error('Error saving image:', error);
-    res.status(500).json({ error: 'Failed to save image' });
-  }
-});
-
 
 // Start server
 app.listen(PORT, () => {

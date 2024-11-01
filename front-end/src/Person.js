@@ -29,12 +29,19 @@ export default function Person() {
         return <p>Loading...</p>;
     }
 
+    // Ensure emergencyContact is an array for rendering
+    const emergencyContacts = Array.isArray(personData.emergencyContact) 
+        ? personData.emergencyContact 
+        : [personData.emergencyContact];
+
     return (
         <div className="relative isolate overflow-hidden bg-gray-900 h-screen flex items-center">
             <div className="mx-auto max-w-7xl px-6 lg:px-8">
                 <div className="mx-auto grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-2">
                     <div className="max-w-xl lg:max-w-lg">
-                        <h2 className="text-4xl font-semibold tracking-tight text-white">{personData.firstName + ' ' + personData.lastName}</h2>
+                        <h2 className="text-4xl font-semibold tracking-tight text-white">
+                            {personData.firstName + ' ' + personData.lastName}
+                        </h2>
                         <p className="mt-4 text-lg text-gray-300">
                             {personData.description}
                         </p>
@@ -64,13 +71,9 @@ export default function Person() {
                             <div className="rounded-md bg-white/5 p-2 ring-1 ring-white/10">
                                 <ClipboardDocumentListIcon aria-hidden="true" className="h-6 w-6 text-white" /> {/* Clipboard icon */}
                             </div>
-                            <dt className="mt-4 text-base font-semibold text-white">Symptoms</dt>
+                            <dt className="mt-4 text-base font-semibold text-white">Presenting Concern</dt>
                             <dd className="mt-2 text-base text-gray-400">
-                                <ul>
-                                    {personData.features.map((feature, index) => (
-                                        <li key={index}>{feature}</li>
-                                    ))}
-                                </ul>
+                                {personData.presentingConcern}
                             </dd>
                         </div>
                         <div className="flex flex-col items-start">
@@ -80,7 +83,7 @@ export default function Person() {
                             <dt className="mt-4 text-base font-semibold text-white">Emergency Contact</dt>
                             <dd className="mt-2 text-base text-gray-400">
                                 <ul>
-                                    {personData.emergencyContact.map((contact, index) => (
+                                    {emergencyContacts.map((contact, index) => (
                                         <li key={index}>{contact}</li>
                                     ))}
                                 </ul>

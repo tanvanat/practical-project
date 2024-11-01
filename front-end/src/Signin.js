@@ -57,11 +57,7 @@ export default function Signin() {
                 <label htmlFor="password" className="block text-sm font-medium leading-6 text-custom-orange">
                   Password
                 </label>
-                <div className="text-sm">
-                  <a href="#" className="font-semibold text-custom-orange hover:text-[#CC5200]">
-                    Forgot password?
-                  </a>
-                </div>
+      
               </div>
               <div className="mt-2">
                 <input
