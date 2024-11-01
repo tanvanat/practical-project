@@ -1,21 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Signin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSignin = (e) => {
+  const handleSignin = async (e) => {
     e.preventDefault();
 
-    // Here you would typically handle authentication logic.
-    // For demo purposes, we'll just check if the username and password are not empty.
-    if (username && password) {
-      // Redirect to the Home page upon successful sign-in.
-      navigate('/home');
-    } else {
-      alert('Please enter a valid username and password');
+    // Prepare the payload for the API request
+    const payload = {
+      username,
+      password,
+    };
+
+    try {
+      // Make a POST request to the sign-in API endpoint
+      const response = await axios.post('http://localhost:5000/api/doctors/signin', payload);
+
+      // Handle successful response
+      if (response.status === 200) {
+        // Redirect to the Home page upon successful sign-in
+        navigate('/home');
+      }
+    } catch (error) {
+      // Handle errors (e.g., invalid credentials)
+      setError('Invalid username or password. Please try again.');
+      console.error(error);
     }
   };
 
@@ -33,32 +47,30 @@ export default function Signin() {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={handleSignin} className="space-y-6"> {/* Call handleSignin on form submit */}
+          {error && <p className="text-red-600">{error}</p>} {/* Show error message */}
+          <form onSubmit={handleSignin} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-custom-orange">
-                Email address
+              <label htmlFor="username" className="block text-sm font-medium leading-6 text-custom-orange">
+                Username
               </label>
               <div className="mt-2">
                 <input
-                  id="email"
-                  name="email"
-                  type="text" // Change to text if you're using username
+                  id="username"
+                  name="username"
+                  type="text"
                   required
                   autoComplete="username"
-                  value={username} // Set value to username state
-                  onChange={(e) => setUsername(e.target.value)} // Update username state
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="block w-full rounded-md border border-gray-300 bg-custom-grey text-gray-900 shadow-sm placeholder:text-gray-500 focus:border-custom-orange focus:ring-2 focus:ring-custom-orange sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-custom-orange">
-                  Password
-                </label>
-      
-              </div>
+              <label htmlFor="password" className="block text-sm font-medium leading-6 text-custom-orange">
+                Password
+              </label>
               <div className="mt-2">
                 <input
                   id="password"
@@ -66,8 +78,8 @@ export default function Signin() {
                   type="password"
                   required
                   autoComplete="current-password"
-                  value={password} // Set value to password state
-                  onChange={(e) => setPassword(e.target.value)} // Update password state
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="block w-full rounded-md border border-gray-300 bg-custom-grey text-gray-900 shadow-sm placeholder:text-gray-500 focus:border-custom-orange focus:ring-2 focus:ring-custom-orange sm:text-sm sm:leading-6"
                 />
               </div>
@@ -85,5 +97,5 @@ export default function Signin() {
         </div>
       </div>
     </>
-  )
+  );
 }

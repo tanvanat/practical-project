@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const argon2 = require("../Argon2/node_modules/argon2"); // Adjust this path
 
 const app = express();
 const PORT = 5000;
@@ -37,13 +38,13 @@ const Patients_data = new mongoose.Schema({
   height: String,
   description: String,
   features: [String],
-  emergencyContact: String, // Change this to String for a single phone number
+  emergencyContact: String, // Single phone number
   featured: Boolean,
   presentingConcern: String,
 });
 
 // Pre-save hook to set `id` to `firstName`
-Patients_data.pre('save', function(next) {
+Patients_data.pre('save', function (next) {
   if (!this.id) {
     this.id = this.firstName; // Automatically set `id` to `firstName` if not already defined
   }
@@ -54,19 +55,104 @@ const Tier = mongoose.model('Tier', Patients_data);
 
 // Doctors_data schema
 const Doctors_data = new mongoose.Schema({
-  firstName: String,
-  lastName: String,
-  specialty: String,
-  email: String,
-  phone: String,
-  address: String,
-  // Add any additional fields as necessary
+  username: {
+    type: String,
+    unique: true, // Ensure username is unique
+    required: true
+  },
+  password: {
+    type: String,
+    required: true
+  }
 });
 
-// Create a Mongoose model for Doctors
-const Doctor = mongoose.model('Doctor', Doctors_data);
+// Hash password before saving
+Doctors_data.pre("save", async function (next) {
+  const doctor = this;
 
-//Patients
+  // Only hash if the password has been modified (or is new)
+  if (doctor.isModified("password")) {
+    try {
+      // Hash the password
+      doctor.password = await argon2.hash(doctor.password);
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  next();
+});
+
+// Method to verify password
+Doctors_data.methods.verifyPassword = async function (inputPassword) {
+  return await argon2.verify(this.password, inputPassword);
+};
+
+const Doctor = mongoose.model("Doctor", Doctors_data);
+
+// Get all doctors: This will expose usernames and passwords (consider security implications)
+app.get('/api/doctors', async (req, res) => {
+  try {
+    // Retrieve all doctors from the database
+    const doctors = await Doctor.find({}, 'username password'); // Only retrieve username and password fields
+
+    // Send back the list of doctors
+    res.json(doctors);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch doctors' });
+  }
+});
+
+// Create a new doctor: Add this route in your existing Express app
+app.post('/api/doctors', async (req, res) => {
+  const { username, password } = req.body;
+
+  // Ensure both username and password are provided
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Username and password are required' });
+  }
+
+  // Create a new doctor instance
+  const newDoctor = new Doctor({ username, password });
+
+  try {
+    // Save the new doctor to the database
+    await newDoctor.save();
+    res.status(201).json(newDoctor);
+  } catch (error) {
+    if (error.code === 11000) {
+      // Handle duplicate username error
+      return res.status(400).json({ error: 'Username already exists' });
+    }
+    res.status(500).json({ error: 'Failed to create doctor' });
+  }
+});
+
+// Assuming you already have your Doctor model set up
+app.post('/api/doctors/signin', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const doctor = await Doctor.findOne({ username });
+
+    if (!doctor) {
+      return res.status(404).json({ error: 'Doctor not found' });
+    }
+
+    // Verify the password
+    const isValidPassword = await doctor.verifyPassword(password);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    // Successful authentication
+    res.status(200).json({ message: 'Login successful' });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//Patients routes
 // Get person's data: Sessions.js/Today.js
 app.get('/api/person/:id', async (req, res) => {
   try {
@@ -98,50 +184,38 @@ app.post('/api/person', async (req, res) => {
 // Create a new session: NewSession.js
 app.post('/api/newsession/upload', async (req, res) => {
   const sessionData = req.body; // Extract session data from the request body
+  const patientId = sessionData.patientId; // Assuming patientId is part of the session data
 
   try {
-    // Assuming you want to save session data in a separate collection
-    const newSession = new Tier(sessionData); // Or you might want to define a new model for sessions
+    // Check if a session already exists for the specified patient ID
+    const existingSession = await Tier.findOne({ patientId });
 
-    await newSession.save(); // Save session data to the database
-    res.status(201).json(newSession); // Respond with the created session data
+    if (existingSession) {
+      // If a session exists, update it
+      Object.assign(existingSession, sessionData);
+      await existingSession.save();
+      return res.status(200).json(existingSession);
+    }
+
+    // If no existing session, create a new one
+    const newSession = new Tier(sessionData);
+    await newSession.save();
+    res.status(201).json(newSession);
   } catch (error) {
-    res.status(400).json({ error: 'Failed to create session' }); // Handle errors
+    res.status(400).json({ error: 'Failed to create or update session' });
   }
 });
 
 // Get all sessions: Sessions.js
 app.get('/api/sessions', async (req, res) => {
   try {
-    const sessions = await Tier.find(); // Fetch all documents from the Tier collection
-    res.json(sessions); // Send all sessions data as JSON
+    const sessions = await Tier.find();
+    res.json(sessions);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch sessions' }); // Handle errors
+    res.status(500).json({ error: 'Failed to fetch sessions' });
   }
 });
 
-//Doctors
-// Get all doctors: Doctors.js
-app.get('/api/doctors', async (req, res) => {
-  try {
-    const doctors = await Doctor.find(); // Fetch all documents from the Doctors collection
-    res.json(doctors); // Send all doctors data as JSON
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch doctors' }); // Handle errors
-  }
-});
-
-// Create a new doctor: NewDoctor.js
-app.post('/api/doctors', async (req, res) => {
-  const newDoctor = new Doctor(req.body);
-
-  try {
-    await newDoctor.save();
-    res.status(201).json(newDoctor);
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to create doctor' });
-  }
-});
 
 // Start server
 app.listen(PORT, () => {

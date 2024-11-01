@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function Newsession() {
     const location = useLocation();
+    const { patientId } = location.state || {}; // Retrieve patientId from state
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -25,9 +26,9 @@ export default function Newsession() {
 
     useEffect(() => {
         const fetchPatientData = async () => {
-            if (location.state && location.state.patientId) {
+            if (patientId) {
                 try {
-                    const response = await fetch(`/api/person/${location.state.patientId}`);
+                    const response = await fetch(`/api/person/${patientId}`);
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
@@ -57,7 +58,7 @@ export default function Newsession() {
         };
 
         fetchPatientData();
-    }, [location.state]);
+    }, [patientId]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -69,13 +70,13 @@ export default function Newsession() {
         setLoading(true);
 
         const isValid = Object.values(formData).every((value) => value.trim() !== '');
-    
+
         if (!isValid) {
             alert("Please fill in all fields before submitting.");
             setLoading(false);
             return;
         }
-    
+
         try {
             // Include the phone number as the emergency contact
             const response = await axios.post('/api/newsession/upload', {
@@ -116,7 +117,7 @@ export default function Newsession() {
                                 <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
 
                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-                                    {/* Input fields */}
+                                    {/* First Name */}
                                     <div className="sm:col-span-3">
                                         <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
                                             First name
@@ -127,13 +128,15 @@ export default function Newsession() {
                                                 name="firstName"
                                                 type="text"
                                                 autoComplete="given-name"
-                                                value={formData.firstName} // Set value from state
-                                                onChange={handleChange}
-                                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                value={formData.firstName}
+                                                onChange={patientId ? undefined : handleChange} // Keep onChange if patientId doesn't exist
+                                                disabled={Boolean(patientId)} // Disable the input if patientId exists
+                                                className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${patientId ? 'bg-gray-200' : ''}`}
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Last Name */}
                                     <div className="sm:col-span-3">
                                         <label htmlFor="last-name" className="block text-sm font-medium leading-6 text-gray-900">
                                             Last name
@@ -144,14 +147,14 @@ export default function Newsession() {
                                                 name="lastName"
                                                 type="text"
                                                 autoComplete="family-name"
-                                                value={formData.lastName} // Set value from state
-                                                onChange={handleChange}
-                                                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                value={formData.lastName}
+                                                onChange={patientId ? undefined : handleChange} // Keep onChange if patientId doesn't exist
+                                                disabled={Boolean(patientId)} // Disable the input if patientId exists
+                                                className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 ${patientId ? 'bg-gray-200' : ''}`}
                                             />
                                         </div>
                                     </div>
 
-                                    {/* Additional input fields follow the same pattern as above, using formData for values */}
                                     {/* Email */}
                                     <div className="sm:col-span-4">
                                         <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
@@ -170,7 +173,6 @@ export default function Newsession() {
                                         </div>
                                     </div>
 
-                                    {/* Continue adding the remaining fields similarly */}
                                     {/* Country */}
                                     <div className="sm:col-span-3">
                                         <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
@@ -230,7 +232,7 @@ export default function Newsession() {
                                     </div>
 
                                     {/* Congenital */}
-                                    <div className="sm:col-span-2">
+                                    <div className="sm:col-span-3">
                                         <label htmlFor="congenital" className="block text-sm font-medium leading-6 text-gray-900">
                                             Congenital
                                         </label>
@@ -247,7 +249,7 @@ export default function Newsession() {
                                     </div>
 
                                     {/* Allergy */}
-                                    <div className="sm:col-span-2">
+                                    <div className="sm:col-span-3">
                                         <label htmlFor="allergy" className="block text-sm font-medium leading-6 text-gray-900">
                                             Allergy
                                         </label>
@@ -264,7 +266,7 @@ export default function Newsession() {
                                     </div>
 
                                     {/* Weight */}
-                                    <div className="sm:col-span-2">
+                                    <div className="sm:col-span-3">
                                         <label htmlFor="weight" className="block text-sm font-medium leading-6 text-gray-900">
                                             Weight
                                         </label>
@@ -272,7 +274,7 @@ export default function Newsession() {
                                             <input
                                                 id="weight"
                                                 name="weight"
-                                                type="text"
+                                                type="number"
                                                 value={formData.weight}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -281,7 +283,7 @@ export default function Newsession() {
                                     </div>
 
                                     {/* Height */}
-                                    <div className="sm:col-span-2">
+                                    <div className="sm:col-span-3">
                                         <label htmlFor="height" className="block text-sm font-medium leading-6 text-gray-900">
                                             Height
                                         </label>
@@ -289,7 +291,7 @@ export default function Newsession() {
                                             <input
                                                 id="height"
                                                 name="height"
-                                                type="text"
+                                                type="number"
                                                 value={formData.height}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -306,29 +308,21 @@ export default function Newsession() {
                                             <textarea
                                                 id="presentingConcern"
                                                 name="presentingConcern"
-                                                rows={3}
                                                 value={formData.presentingConcern}
                                                 onChange={handleChange}
+                                                rows={3}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                                placeholder="Describe the presenting concern..."
                                             />
                                         </div>
-                                        <p className="mt-2 text-sm leading-6 text-gray-600">
-                                            Brief description for your concern.
-                                        </p>
                                     </div>
                                 </div>
 
-                                <div className="mt-6 flex items-center justify-end gap-x-6">
-                                    <button
-                                        type="button"
-                                        className="text-sm font-semibold leading-6 text-gray-900"
-                                        onClick={() => navigate(-1)}
-                                    >
-                                        Cancel
-                                    </button>
+                                {/* Submit Button */}
+                                <div className="mt-6 flex items-center justify-end">
                                     <button
                                         type="submit"
-                                        className="inline-block rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm ring-1 ring-gray-900/10 hover:ring-gray-900/20"
+                                        className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                                     >
                                         Save
                                     </button>
