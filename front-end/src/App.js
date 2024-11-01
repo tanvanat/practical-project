@@ -21,7 +21,6 @@ export default function App() {
         <Route path="/home/*" element={<Home />} />
         <Route path="/home/person/:id" element={<Person />} />
         {/* Add a route for the WebcamCapture component */}
-        <Route path="/camera" element={<Camera />} />
       </Routes>
     </Router>
   );

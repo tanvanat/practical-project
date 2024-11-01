@@ -99,6 +99,36 @@ app.get('/api/sessions', async (req, res) => {
   }
 });
 
+// Define a new schema for the uploaded images
+const imageSchema = new mongoose.Schema({
+  imageUrl: String, // URL or data of the uploaded image
+  createdAt: { type: Date, default: Date.now }, // Optional: Store the upload time
+});
+
+// Create a model for the uploaded images
+const ImageUpload = mongoose.model('ImageUpload', imageSchema);
+
+// Create a new API endpoint to handle image uploads
+app.post('/api/camera/upload', async (req, res) => {
+  const { image } = req.body; // Extract the image data from the request body
+
+  if (!image) {
+    return res.status(400).json({ error: 'No image data provided' });
+  }
+
+  try {
+    // Create a new instance of the ImageUpload model
+    const newImage = new ImageUpload({ imageUrl: image });
+    await newImage.save(); // Save the image data to the database
+
+    // Respond with the saved image data (including its ID)
+    res.status(201).json({ success: true, imageId: newImage._id });
+  } catch (error) {
+    console.error('Error saving image:', error);
+    res.status(500).json({ error: 'Failed to save image' });
+  }
+});
+
 
 // Start server
 app.listen(PORT, () => {

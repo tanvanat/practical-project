@@ -37,7 +37,7 @@ export default function Sessions() {
                                 <Link to={`/home/person/${person.id}`}>
                                     <button className="w-full bg-custom-green hover:bg-[#B0BD9C] text-white font-bold py-2 px-4 border-b-4 border-custom-green hover:border-[#B0BD9C] rounded flex justify-between items-center">
                                         <div className="flex items-center min-w-0 gap-x-4">
-                                            <img alt="" src={person.imageUrl} className="h-12 w-12 flex-none rounded-full bg-gray-50" />
+                                            
                                             <div className="min-w-0 flex-auto">
                                                 <p className="text-sm font-semibold leading-6 text-gray-900">{person.firstName + ' '+ person.lastName}</p>
                                             </div>

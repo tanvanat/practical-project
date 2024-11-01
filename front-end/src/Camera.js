@@ -1,22 +1,28 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios'; // Import axios to make API requests
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import imageCompression from 'browser-image-compression'; // Import the image compression library
 
 const Camera = () => {
     const videoRef = useRef(null);
-    const canvasRef = useRef(null); // To draw and capture the image
+    const canvasRef = useRef(null);
     const [capturedImage, setCapturedImage] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        navigator.mediaDevices.getUserMedia({ video: true })
-            .then((stream) => {
+        const startCamera = async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;
                 }
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.error("Error accessing the camera:", error);
                 alert("Unable to access the camera. Please check permissions.");
-            });
+            }
+        };
+
+        startCamera();
 
         return () => {
             if (videoRef.current && videoRef.current.srcObject) {
@@ -38,12 +44,37 @@ const Camera = () => {
     const saveImage = async () => {
         if (capturedImage) {
             try {
-                const response = await axios.post('/api/upload', { image: capturedImage });
+                // Compress the image before uploading
+                const compressedFile = await imageCompression(capturedImage, {
+                    maxSizeMB: 1, // Set max size to 1MB
+                    useWebWorker: true,
+                });
+
+                const formData = new FormData();
+                formData.append('image', compressedFile);
+
+                // Upload the compressed image to your API
+                const response = await axios.post('/api/camera/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
                 console.log('Image saved successfully:', response.data);
-                alert('Image saved successfully!');
-                // Optionally, redirect or update UI after saving
+
+                // Navigate to /home/upload first
+                console.log('Navigating to /home/upload...');
+                navigate('/home/upload');
+
+                // After navigating, retrieve profile data
+                const profileResponse = await axios.get(`/api/profile/${response.data.imageId}`);
+                console.log('Profile image data:', profileResponse.data);
+
+                // Navigate to /home/newsession
+                console.log('Navigating to /home/newsession...');
+                navigate('/home/newsession');
             } catch (error) {
                 console.error('Error saving image:', error);
+                alert('Failed to save image. Please try again.');
             }
         }
     };

@@ -8,7 +8,6 @@ const tiers = [
         name: 'Leslie Alexander',
         id: 'Leslie',
         href: '#',
-        imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
         description: "I am experiencing frequent urination, especially at night. My energy levels seem low, and I've noticed more thirst than usual. Please help me manage these symptoms.",
         features: ['Thirsty', 'Genital itching or thrush', 'Blurred eyesight', 'Cuts and wounds take longer to heal'],
         emergencyContact: '(123) 456-7890',
@@ -18,7 +17,6 @@ const tiers = [
         name: 'Michael Foster',
         id: 'Michael',
         href: '#',
-        imageUrl: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
         description: "My hands, ankles, and feet are swelling more than usual. I often feel short of breath, and it's affecting my daily activities. I would like to explore ways to manage these symptoms.",
         features: [
             'Chest pain',
@@ -91,14 +89,6 @@ export default function Today() {
                                 >
                                     {tier.name}
                                 </h3>
-
-                                <div className="mt-4 flex justify-center">
-                                    <img
-                                        alt={`${tier.name}'s avatar`}
-                                        src={tier.imageUrl}
-                                        className="h-12 w-12 flex-none rounded-full bg-gray-50"
-                                    />
-                                </div>
 
                                 <p className={classNames(tier.featured ? 'text-gray-300' : 'text-gray-600', 'mt-6 text-base leading-7 text-center')}>
                                     {tier.description}
