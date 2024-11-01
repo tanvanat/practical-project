@@ -25,8 +25,6 @@ export default function Today() {
                 featured: true
             }));
 
-
-
             setPatients(limitedData);
         } catch (error) {
             console.error('Error fetching patient data:', error);
@@ -86,8 +84,8 @@ export default function Today() {
                                 Emergency Contact: {patient.emergencyContact}
                             </p>
                             <Link
-                                to={`/home/person/${patient.id}`}
-                                aria-describedby={patient.id}
+                                to={`/home/newsession`}
+                                state={{ patientId: patient.id }} // Pass patient ID to the Newsession component
                                 className={`mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold ${patient.featured ? 'bg-indigo-500 text-white' : 'text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300'}`}
                             >
                                 Diagnose
@@ -95,8 +93,6 @@ export default function Today() {
                         </div>
                     ))}
                 </div>
-
-
             </div>
         </main>
     );

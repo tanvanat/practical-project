@@ -1,9 +1,10 @@
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import axios from 'axios';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-export default function Newsession({ tier }) {
+export default function Newsession() {
+    const location = useLocation();
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -19,20 +20,54 @@ export default function Newsession({ tier }) {
     });
 
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchPatientData = async () => {
+            if (location.state && location.state.patientId) {
+                try {
+                    const response = await fetch(`/api/person/${location.state.patientId}`);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    setFormData({
+                        firstName: data.firstName,
+                        lastName: data.lastName,
+                        email: data.email,
+                        country: data.country,
+                        streetAddress: data.streetAddress,
+                        phone: data.emergencyContact, // Assuming emergency contact is stored as phone
+                        congenital: data.congenital,
+                        allergy: data.allergy,
+                        weight: data.weight,
+                        height: data.height,
+                        presentingConcern: data.presentingConcern,
+                    });
+                } catch (error) {
+                    console.error('Error fetching patient data:', error);
+                    setError(error.message);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false); // No patient ID, stop loading
+            }
+        };
+
+        fetchPatientData();
+    }, [location.state]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-    
+
         const isValid = Object.values(formData).every((value) => value.trim() !== '');
     
         if (!isValid) {
@@ -51,12 +86,15 @@ export default function Newsession({ tier }) {
             navigate('/home/upload');
         } catch (error) {
             console.error('Error submitting form:', error);
+            setError(error.message);
         } finally {
             setLoading(false);
         }
     };
-    
 
+    if (loading) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <>
@@ -77,9 +115,8 @@ export default function Newsession({ tier }) {
                                 <h2 className="text-base font-semibold leading-7 text-gray-900">Personal Information</h2>
                                 <p className="mt-1 text-sm leading-6 text-gray-600">Use a permanent address where you can receive mail.</p>
 
-
-
                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                    {/* Input fields */}
                                     <div className="sm:col-span-3">
                                         <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
                                             First name
@@ -90,6 +127,7 @@ export default function Newsession({ tier }) {
                                                 name="firstName"
                                                 type="text"
                                                 autoComplete="given-name"
+                                                value={formData.firstName} // Set value from state
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
@@ -106,12 +144,15 @@ export default function Newsession({ tier }) {
                                                 name="lastName"
                                                 type="text"
                                                 autoComplete="family-name"
+                                                value={formData.lastName} // Set value from state
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Additional input fields follow the same pattern as above, using formData for values */}
+                                    {/* Email */}
                                     <div className="sm:col-span-4">
                                         <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                                             Email address
@@ -122,12 +163,15 @@ export default function Newsession({ tier }) {
                                                 name="email"
                                                 type="email"
                                                 autoComplete="email"
+                                                value={formData.email}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Continue adding the remaining fields similarly */}
+                                    {/* Country */}
                                     <div className="sm:col-span-3">
                                         <label htmlFor="country" className="block text-sm font-medium leading-6 text-gray-900">
                                             Country
@@ -137,6 +181,7 @@ export default function Newsession({ tier }) {
                                                 id="country"
                                                 name="country"
                                                 autoComplete="country-name"
+                                                value={formData.country}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                                             >
@@ -148,6 +193,7 @@ export default function Newsession({ tier }) {
                                         </div>
                                     </div>
 
+                                    {/* Street Address */}
                                     <div className="col-span-full">
                                         <label htmlFor="street-address" className="block text-sm font-medium leading-6 text-gray-900">
                                             Street address
@@ -158,12 +204,14 @@ export default function Newsession({ tier }) {
                                                 name="streetAddress"
                                                 type="text"
                                                 autoComplete="street-address"
+                                                value={formData.streetAddress}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Phone Number */}
                                     <div className="sm:col-span-2 sm:col-start-1">
                                         <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
                                             Phone number
@@ -172,30 +220,33 @@ export default function Newsession({ tier }) {
                                             <input
                                                 id="phone"
                                                 name="phone"
-                                                type="text"
-                                                autoComplete="phone-number"
+                                                type="tel"
+                                                autoComplete="tel"
+                                                value={formData.phone}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Congenital */}
                                     <div className="sm:col-span-2">
                                         <label htmlFor="congenital" className="block text-sm font-medium leading-6 text-gray-900">
-                                            Congenital disease
+                                            Congenital
                                         </label>
                                         <div className="mt-2">
                                             <input
                                                 id="congenital"
                                                 name="congenital"
                                                 type="text"
-                                                autoComplete="congenital disease"
+                                                value={formData.congenital}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Allergy */}
                                     <div className="sm:col-span-2">
                                         <label htmlFor="allergy" className="block text-sm font-medium leading-6 text-gray-900">
                                             Allergy
@@ -205,51 +256,48 @@ export default function Newsession({ tier }) {
                                                 id="allergy"
                                                 name="allergy"
                                                 type="text"
-                                                autoComplete="allergy"
+                                                value={formData.allergy}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Weight */}
                                     <div className="sm:col-span-2">
                                         <label htmlFor="weight" className="block text-sm font-medium leading-6 text-gray-900">
-                                            Weight (kg)
+                                            Weight
                                         </label>
                                         <div className="mt-2">
                                             <input
                                                 id="weight"
                                                 name="weight"
-                                                type="number"
-                                                min="1"  // Minimum value for weight
-                                                max="500"  // Maximum value for weight
-                                                step="0.1"  // Allow up to one decimal place, if needed
-                                                autoComplete="weight"
+                                                type="text"
+                                                value={formData.weight}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Height */}
                                     <div className="sm:col-span-2">
                                         <label htmlFor="height" className="block text-sm font-medium leading-6 text-gray-900">
-                                            Height (cm)
+                                            Height
                                         </label>
                                         <div className="mt-2">
                                             <input
                                                 id="height"
                                                 name="height"
-                                                type="number"
-                                                min="30"  // Minimum value for height
-                                                max="300"  // Maximum value for height
-                                                step="1"  // Whole numbers only
-                                                autoComplete="height"
+                                                type="text"
+                                                value={formData.height}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                             />
                                         </div>
                                     </div>
 
+                                    {/* Presenting Concern */}
                                     <div className="col-span-full">
                                         <label htmlFor="presentingConcern" className="block text-sm font-medium leading-6 text-gray-900">
                                             Presenting Concern
@@ -259,43 +307,33 @@ export default function Newsession({ tier }) {
                                                 id="presentingConcern"
                                                 name="presentingConcern"
                                                 rows={3}
+                                                value={formData.presentingConcern}
                                                 onChange={handleChange}
                                                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                                defaultValue={''}
                                             />
                                         </div>
-                                    </div>
-
-                                    <div className="col-span-full">
-                                        <label htmlFor="photo" className="block text-sm font-medium leading-6 text-gray-900">
-                                            Photo
-                                        </label>
-                                        <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                                            <div className="text-center">
-                                                <PhotoIcon aria-hidden="true" className="mx-auto h-12 w-12 text-gray-300" />
-                                                <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                                    <label htmlFor="file-upload" className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500">
-                                                        <span>Upload a file</span>
-                                                        <input id="file-upload" name="file-upload" type="file" className="sr-only" />
-                                                    </label>
-                                                    <p className="pl-1">or drag and drop</p>
-                                                </div>
-                                                <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
-                                            </div>
-                                        </div>
+                                        <p className="mt-2 text-sm leading-6 text-gray-600">
+                                            Brief description for your concern.
+                                        </p>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div className="mt-6 flex items-center justify-end gap-x-6">
-                            <button
-                                type="submit"
-                                disabled={Object.values(formData).some((value) => value.trim() === '')} // Disable if any field is empty
-                                className={`rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm ${Object.values(formData).some((value) => value.trim() === '') ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500'}`}
-                            >
-                                Save
-                            </button>
+                                <div className="mt-6 flex items-center justify-end gap-x-6">
+                                    <button
+                                        type="button"
+                                        className="text-sm font-semibold leading-6 text-gray-900"
+                                        onClick={() => navigate(-1)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="inline-block rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm ring-1 ring-gray-900/10 hover:ring-gray-900/20"
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </form>
