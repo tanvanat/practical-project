@@ -2,11 +2,21 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const argon2 = require("../Argon2/node_modules/argon2"); // Adjust this path
+const jwt = require('jsonwebtoken');
+const NodeRSA = require('node-rsa');
+
+// Generate RSA key pair for JWT signing
+const key = new NodeRSA({ b: 2048 });
+const privateKey = key.exportKey('private');
+const publicKey = key.exportKey('public');
 
 const app = express();
 const PORT = 5000;
 
-// Middleware
+// Use RSA keys for JWT
+const JWT_PRIVATE_KEY = privateKey;
+const JWT_PUBLIC_KEY = publicKey;
+
 app.use(cors());
 app.use(express.json());
 
@@ -16,18 +26,17 @@ mongoose.connect('mongodb://localhost:27017/Project', {
   useUnifiedTopology: true,
 });
 
-// Check MongoDB connection
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.once('open', () => {
   console.log('Connected to MongoDB');
 });
 
-// Patients_data schema
+// Schema for patient data
 const Patients_data = new mongoose.Schema({
   firstName: String,
   lastName: String,
-  id: String, // Automatically set to firstName
+  id: String,
   href: String,
   email: String,
   country: String,
@@ -38,122 +47,130 @@ const Patients_data = new mongoose.Schema({
   height: String,
   description: String,
   features: [String],
-  emergencyContact: String, // Single phone number
+  emergencyContact: String,
   featured: Boolean,
   presentingConcern: String,
 });
 
-// Pre-save hook to set `id` to `firstName`
 Patients_data.pre('save', function (next) {
-  if (!this.id) {
-    this.id = this.firstName; // Automatically set `id` to `firstName` if not already defined
-  }
+  if (!this.id) this.id = this.firstName;
   next();
 });
 
 const Tier = mongoose.model('Tier', Patients_data);
 
-// Doctors_data schema
-const Doctors_data = new mongoose.Schema({
-  username: {
-    type: String,
-    unique: true, // Ensure username is unique
-    required: true
-  },
-  password: {
-    type: String,
-    required: true
-  }
+// User schema with password hashing
+const User_data = new mongoose.Schema({
+  username: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['admin', 'doctor'], default: 'doctor' },
+  rsaPublicKey: { type: String, required: true },
+  rsaPrivateKey: { type: String, required: true },
 });
 
-// Hash password before saving
-Doctors_data.pre("save", async function (next) {
-  const doctor = this;
-
-  // Only hash if the password has been modified (or is new)
-  if (doctor.isModified("password")) {
+User_data.pre("save", async function (next) {
+  if (this.isModified("password")) {
     try {
-      // Hash the password
-      doctor.password = await argon2.hash(doctor.password);
+      this.password = await argon2.hash(this.password);
     } catch (err) {
       return next(err);
     }
   }
-
   next();
 });
 
-// Method to verify password
-Doctors_data.methods.verifyPassword = async function (inputPassword) {
+User_data.methods.verifyPassword = async function (inputPassword) {
   return await argon2.verify(this.password, inputPassword);
 };
 
-const Doctor = mongoose.model("Doctor", Doctors_data);
+const User = mongoose.model("User", User_data);
 
-// Get all doctors: This will expose usernames and passwords (consider security implications)
-app.get('/api/doctors', async (req, res) => {
+// Middleware for role-based authorization
+function authorize(roles = []) {
+  if (typeof roles === 'string') roles = [roles];
+  return (req, res, next) => {
+    const userRole = req.user?.role;
+    if (!roles.length || roles.includes(userRole)) return next();
+    res.status(403).json({ error: 'Forbidden' });
+  };
+}
+
+async function authenticate(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) return res.status(401).json({ error: 'No token provided' });
+
+  const token = authHeader.split(' ')[1];
   try {
-    // Retrieve all doctors from the database
-    const doctors = await Doctor.find({}, 'username password'); // Only retrieve username and password fields
-
-    // Send back the list of doctors
-    res.json(doctors);
+    const decoded = jwt.verify(token, JWT_PUBLIC_KEY);
+    req.user = decoded;
+    next();
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch doctors' });
+    res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+// Signup route
+app.post('/api/users/signup', async (req, res) => {
+  const { username, password, role } = req.body;
+
+  try {
+    const existingUser = await User.findOne({ username });
+    if (existingUser) return res.status(400).json({ error: 'User already exists' });
+
+    const key = new NodeRSA({ b: 2048 });
+    const rsaPrivateKey = key.exportKey('private');
+    const rsaPublicKey = key.exportKey('public');
+
+    const newUser = new User({
+      username,
+      password,
+      role,
+      rsaPrivateKey,
+      rsaPublicKey,
+    });
+
+    await newUser.save();
+    res.status(201).json({ message: 'User created successfully', user: { username, role, rsaPublicKey } });
+  } catch (error) {
+    console.error('Error creating user:', error);
+    res.status(500).json({ error: 'Failed to create user' });
   }
 });
 
-// Create a new doctor: Add this route in your existing Express app
-app.post('/api/doctors', async (req, res) => {
-  const { username, password } = req.body;
-
-  // Ensure both username and password are provided
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
-  }
-
-  // Create a new doctor instance
-  const newDoctor = new Doctor({ username, password });
-
-  try {
-    // Save the new doctor to the database
-    await newDoctor.save();
-    res.status(201).json(newDoctor);
-  } catch (error) {
-    if (error.code === 11000) {
-      // Handle duplicate username error
-      return res.status(400).json({ error: 'Username already exists' });
-    }
-    res.status(500).json({ error: 'Failed to create doctor' });
-  }
-});
-
-// Assuming you already have your Doctor model set up
+// Signin route with RSA JWT token
 app.post('/api/doctors/signin', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const doctor = await Doctor.findOne({ username });
+    const user = await User.findOne({ username });
+    if (!user) return res.status(401).json({ error: 'Invalid username or password.' });
 
-    if (!doctor) {
-      return res.status(404).json({ error: 'Doctor not found' });
-    }
+    const isPasswordValid = await user.verifyPassword(password);
+    if (!isPasswordValid) return res.status(401).json({ error: 'Invalid username or password.' });
 
-    // Verify the password
-    const isValidPassword = await doctor.verifyPassword(password);
-    if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid password' });
-    }
+    const token = jwt.sign({ _id: user._id, role: user.role }, JWT_PRIVATE_KEY, {
+      algorithm: 'RS256',
+      expiresIn: '1h',
+    });
 
-    // Successful authentication
-    res.status(200).json({ message: 'Login successful' });
+    res.status(200).json({ message: 'Login successful', token });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-//Patients routes
-// Get person's data: Sessions.js/Today.js
+// Protect the /api/users route
+app.get('/api/users', authenticate, authorize(['admin']), async (req, res) => {
+  try {
+    const users = await User.find({ role: { $in: ['doctor', 'admin'] } });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+
+// Patients routes
 app.get('/api/person/:id', async (req, res) => {
   try {
     const personId = req.params.id;
@@ -169,35 +186,41 @@ app.get('/api/person/:id', async (req, res) => {
   }
 });
 
-// Create a new person: Newsession.js
-app.post('/api/person', async (req, res) => {
-  const newPerson = new Tier(req.body);
 
+
+
+// Update an existing person
+app.put('/api/person/:id', authorize('doctor'), async (req, res) => {
   try {
-    await newPerson.save();
-    res.status(201).json(newPerson);
+    const personId = req.params.id;
+    const person = await Tier.findOne({ id: personId });
+
+    if (!person) {
+      return res.status(404).json({ error: 'Person not found' });
+    }
+
+    Object.assign(person, req.body);
+    await person.save();
+    res.json(person);
   } catch (error) {
-    res.status(400).json({ error: 'Failed to create person' });
+    res.status(400).json({ error: 'Failed to update person' });
   }
 });
 
-// Create a new session: NewSession.js
+// Create a new session
 app.post('/api/newsession/upload', async (req, res) => {
-  const sessionData = req.body; // Extract session data from the request body
-  const patientId = sessionData.patientId; // Assuming patientId is part of the session data
+  const sessionData = req.body;
+  const patientId = sessionData.patientId;
 
   try {
-    // Check if a session already exists for the specified patient ID
     const existingSession = await Tier.findOne({ patientId });
 
     if (existingSession) {
-      // If a session exists, update it
       Object.assign(existingSession, sessionData);
       await existingSession.save();
       return res.status(200).json(existingSession);
     }
 
-    // If no existing session, create a new one
     const newSession = new Tier(sessionData);
     await newSession.save();
     res.status(201).json(newSession);
@@ -206,7 +229,7 @@ app.post('/api/newsession/upload', async (req, res) => {
   }
 });
 
-// Get all sessions: Sessions.js
+// Get all sessions
 app.get('/api/sessions', async (req, res) => {
   try {
     const sessions = await Tier.find();
@@ -215,7 +238,6 @@ app.get('/api/sessions', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch sessions' });
   }
 });
-
 
 // Start server
 app.listen(PORT, () => {

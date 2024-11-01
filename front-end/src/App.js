@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Signin from './Signin';
+import Signup from './Signup';
 import Home from './Home';
 import Person from './Person';
 import Camera from './Camera';
@@ -17,10 +18,10 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Signin />} />
+        <Route path="/" element={<Signup />} />
+        <Route path="/signin" element={<Signin />} />
         <Route path="/home/*" element={<Home />} />
         <Route path="/home/person/:id" element={<Person />} />
-        {/* Add a route for the WebcamCapture component */}
       </Routes>
     </Router>
   );

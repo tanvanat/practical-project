@@ -41,6 +41,7 @@ export default function Signin() {
       >
         <div className="sm:mx-auto sm:w-full sm:max-w-sm flex flex-col items-center">
           <div className="bg-med-icon h-16 w-16 bg-contain bg-center bg-no-repeat mb-6"></div>
+          <h1 className="text-2xl font-bold text-custom-orange mb-2">Welcome to Meditrack</h1>
           <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-custom-orange">
             Sign in to your account
           </h2>
