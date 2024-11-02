@@ -19,7 +19,7 @@ export default function Signin() {
 
     try {
       // Make a POST request to the sign-in API endpoint
-      const response = await axios.post('http://localhost:5000/api/doctors/signin', payload);
+      const response = await axios.post('http://localhost:5000/api/users/signin', payload);
 
       // Handle successful response
       if (response.status === 200) {

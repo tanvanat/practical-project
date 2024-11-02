@@ -7,38 +7,28 @@ export default function Today() {
     const [patients, setPatients] = useState([]);
     const [error, setError] = useState(null);
 
+    // Fetches patient data from backend
     const fetchPatients = async () => {
         try {
-            const response = await fetch('/api/sessions'); // Replace with your actual endpoint
+            const response = await fetch('/api/sessions');
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                const errorResponse = await response.text();
+                throw new Error(`Network response was not ok: ${response.status} ${errorResponse}`);
             }
             const data = await response.json();
-
-            const limitedData = data.slice(0, 2).map(patient => ({
-                name: patient.firstName + ' ' + patient.lastName,
-                id: patient.id,
-                href: patient.href,
-                description: patient.presentingConcern, // updated field for session concern
-                features: Array.isArray(patient.congenital) ? patient.congenital : [], // Ensure features is an array
-                emergencyContact: patient.emergencyContact, // array for emergency contact
-                featured: true
-            }));
-
-            setPatients(limitedData);
+            setPatients(data.slice(0, 2)); // Limit to the first 2 patients
         } catch (error) {
             console.error('Error fetching patient data:', error);
-            setError(error.message); // Set error message to state
+            setError(error.message);
         }
     };
 
     useEffect(() => {
-        fetchPatients(); // Initial fetch
+        fetchPatients();
 
-        // Set up polling every 5 seconds (5000 milliseconds)
+        // Polling for real-time updates
         const interval = setInterval(fetchPatients, 5000);
-
-        return () => clearInterval(interval); // Clean up interval on unmount
+        return () => clearInterval(interval);
     }, []);
 
     return (
@@ -57,17 +47,17 @@ export default function Today() {
                     a sufficient suspicion or pre-test probability of a disease or condition.
                 </p>
 
-                {error && <p className="text-red-600 text-center">Error: {error}</p>} {/* Display error if any */}
+                {error && <p className="text-red-600 text-center">Error: {error}</p>}
 
                 <div className="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
                     {patients.map((patient, index) => (
                         <div
                             key={patient.id}
-                            className={`rounded-3xl p-8 ring-1 ring-gray-900/10 ${patient.featured ? 'bg-gray-900 shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0'} mx-2`} // Add horizontal margin for spacing
-                            style={{ transform: index % 2 === 0 ? 'translateX(-10px)' : 'translateX(10px)' }} // Shift boxes left/right
+                            className={`rounded-3xl p-8 ring-1 ring-gray-900/10 ${patient.featured ? 'bg-gray-900 shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0'} mx-2`}
+                            style={{ transform: index % 2 === 0 ? 'translateX(-10px)' : 'translateX(10px)' }}
                         >
                             <h3 className={`text-base font-semibold leading-7 text-center ${patient.featured ? 'text-indigo-400' : 'text-indigo-600'}`}>
-                                {patient.name}
+                                {patient.firstName + ' ' + patient.lastName}
                             </h3>
                             <p className={`mt-6 text-base leading-7 text-center ${patient.featured ? 'text-gray-300' : 'text-gray-600'}`}>
                                 {patient.description}
@@ -85,7 +75,7 @@ export default function Today() {
                             </p>
                             <Link
                                 to={`/home/newsession`}
-                                state={{ patientId: patient.id }} // Pass patient ID to the Newsession component
+                                state={{ patientId: patient.id }}
                                 className={`mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold ${patient.featured ? 'bg-indigo-500 text-white' : 'text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300'}`}
                             >
                                 Diagnose

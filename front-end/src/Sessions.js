@@ -5,8 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function Sessions() {
     const [people, setPeople] = useState([]);
     const [error, setError] = useState(null);
-    const [currentEditingId, setCurrentEditingId] = useState(null); // State to track the currently edited person ID
-    const navigate = useNavigate(); // Hook to navigate programmatically
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchSessions = async () => {
@@ -15,47 +14,25 @@ export default function Sessions() {
                 setPeople(response.data);
             } catch (error) {
                 console.error('Error fetching sessions:', error);
-                setError(error.message); // Set error message to state
+                setError(error.message);
             }
         };
 
-        // Fetch data initially and set up polling
         fetchSessions();
-        const intervalId = setInterval(fetchSessions, 5000); // Fetch every 5 seconds
 
+        const intervalId = setInterval(fetchSessions, 5000);
         return () => clearInterval(intervalId);
     }, []);
 
     const handleEdit = async (id) => {
-        if (currentEditingId === id) {
-            // If the same ID is selected, trigger the update logic
-            try {
-                const response = await axios.put(`/api/person/${id}`, {
-                    // Here, you would send the updated data
-                    // For example, assuming you want to update some data fields
-                    // name: "Updated Name",
-                    // Other fields to update...
-                });
-                console.log('Person updated:', response.data);
-                // Optionally, you can refresh the list or handle UI updates after the update
-                // For now, just log the response or show a success message
-            } catch (error) {
-                console.error('Error updating person data:', error);
-                setError(error.message); // Handle error for updating person data
-            }
-        } else {
-            // If a different ID is selected, fetch the details and navigate to Newsession
-            try {
-                const response = await axios.get(`/api/person/${id}`);
-                const person = response.data;
+        try {
+            const response = await axios.get(`/api/person/${id}`);
+            const person = response.data;
 
-                // Navigate to Newsession.js with the person's data
-                navigate('/home/newsession', { state: { person } });
-                setCurrentEditingId(id); // Update the currently edited person ID
-            } catch (error) {
-                console.error('Error fetching person data:', error);
-                setError(error.message); // Handle error for fetching person data
-            }
+            navigate('/home/newsession', { state: { person } });
+        } catch (error) {
+            console.error('Error fetching person data:', error);
+            setError(error.message);
         }
     };
 
@@ -68,15 +45,15 @@ export default function Sessions() {
             </header>
             <main>
                 <div className="min-h-screen max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-7">
-                    {error && <p className="text-red-600 text-center">Error: {error}</p>} {/* Display error if any */}
+                    {error && <p className="text-red-600 text-center">Error: {error}</p>}
                     <ul>
                         {people.map((person) => (
                             <li key={person.id} className="mb-4">
                                 <Link
                                     to={`/home/newsession`}
-                                    state={{ patientId: person.id }} // Pass the patient's ID to the Newsession component
+                                    state={{ patientId: person.id }}
                                     className="w-full bg-custom-green hover:bg-[#B0BD9C] text-white font-bold py-2 px-4 border-b-4 border-custom-green hover:border-[#B0BD9C] rounded flex justify-between items-center"
-                                    onClick={() => handleEdit(person.id)} // Call handleEdit on click
+                                    onClick={() => handleEdit(person.id)}
                                 >
                                     <div className="flex items-center min-w-0 gap-x-4">
                                         <div className="min-w-0 flex-auto">
